@@ -1,8 +1,8 @@
-'use strict'
-
-import { dbService } from './db.service.js'
+import { storageService } from './async-storage.service.js'
+import { loadFromStorage, saveToStorage } from './util.service.js'
 
 const KEY = 'cars'
+_createCars()
 
 export const carService = {
     query,
@@ -12,28 +12,27 @@ export const carService = {
     getEmptyCar,
 }
 
-async function query() {
-    var cars = await dbService.query(KEY)
+async function query(filterBy = {}) {
+    var cars = await storageService.query(KEY)
 
-    console.log(cars)
-    if (!cars || !cars.length) {
-        cars = _createDefaultCars()
-        await dbService.insert(KEY, cars)
+    if (filterBy.txt) {
+        const regex = new RegExp(filterBy.txt, 'i')
+        cars = cars.filter(car => regex.text(car.vendor))
     }
     return cars
 }
 
 async function get(id) {
-    return await dbService.get(KEY, id)
+    return storageService.get(KEY, id)
 }
 
 async function remove(id) {
-    return await dbService.remove(KEY, id)
+    return storageService.remove(KEY, id)
 }
 
 async function save(car) {
-    if (car._id) return await dbService.put(KEY, car)
-    else return await dbService.post(KEY, car)
+    if (car._id) return storageService.put(KEY, car)
+    else return storageService.post(KEY, car)
 }
 
 function getEmptyCar() {
@@ -43,13 +42,17 @@ function getEmptyCar() {
     }
 }
 
-function _createDefaultCars() {
-    return [
+function _createCars() {
+    var cars = loadFromStorage(KEY)
+    if (cars && cars.length) return
+
+    cars = [
         _createCar('audi', 50),
         _createCar('fiat', 73),
         _createCar('honda', 100),
         _createCar('suzuki', 100),
     ]
+    saveToStorage(KEY, cars)
 }
 
 function _createCar(vendor, speed) {

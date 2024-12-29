@@ -1,5 +1,5 @@
 import { storageService } from './async-storage.service.js'
-import { loadFromStorage, saveToStorage } from './util.service.js'
+import { makeId, loadFromStorage, saveToStorage } from './util.service.js'
 
 const KEY = 'cars'
 _createCars()
@@ -17,7 +17,7 @@ async function query(filterBy = {}) {
 
     if (filterBy.txt) {
         const regex = new RegExp(filterBy.txt, 'i')
-        cars = cars.filter(car => regex.text(car.vendor))
+        cars = cars.filter(car => regex.test(car.vendor))
     }
     return cars
 }
@@ -57,6 +57,7 @@ function _createCars() {
 
 function _createCar(vendor, speed) {
     return {
+        _id: makeId(),
         vendor,
         speed,
     }

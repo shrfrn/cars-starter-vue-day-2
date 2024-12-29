@@ -2,7 +2,6 @@
 
 function createEventEmitter(defaultHandler = null){
     const listenersMap = {}
-    const defHandler = defaultHandler
 
     return {
         on(evName, listener){
@@ -11,8 +10,28 @@ function createEventEmitter(defaultHandler = null){
         },
         emit(evName, payload){
             if(listenersMap[evName]) listenersMap[evName].forEach(listener => listener(payload))
-            else if(defaultHandler) defaultHandler()
+            else if(defaultHandler) defaultHandler(evName, payload)
         }
     }
 }
-export const eventBus = createEventEmitter(() => console.log('No handler found...'))
+
+export const eventBus = 
+    createEventEmitter((evName, payload) => _defaultHandler(evName, payload))
+    
+export function showSuccessMsg(txt) {
+    eventBus.emit('user-msg', { txt, type: 'success' })
+}
+
+export function showErrorMsg(txt) {
+    eventBus.emit('user-msg', { txt, type: 'error' })
+}
+
+function _defaultHandler(evName, payload) {
+    console.groupCollapsed('No handler found')
+    console.log(`event - %c${evName}`, 'color: orange')
+    console.log(`payload - %c${payload}`, 'color: orange')
+    console.groupEnd()
+}
+
+// Easy debug from console
+window.eventBus = eventBus

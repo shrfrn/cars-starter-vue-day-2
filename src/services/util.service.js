@@ -1,10 +1,13 @@
 'use strict'
 
-export function makeId() {
-    var pt1 = Date.now().toString(16)
-    var pt2 = getRandomInt(1000, 9999).toString(16)
-    var pt3 = getRandomInt(1000, 9999).toString(16)
-    return `${pt3}-${pt1}-${pt2}`.toUpperCase()
+export function makeId(length = 5) {
+	var id = ''
+	var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+
+	for (var i = 0; i < length; i++) {
+		id += possible.charAt(getRandomInt(0, possible.length))
+	}
+	return id
 }
 
 export function getRandomInt(num1, num2) {
@@ -20,4 +23,13 @@ export function saveToStorage(key, value) {
 export function loadFromStorage(key) {
     const data = localStorage.getItem(key)
     return (data) ? JSON.parse(data) : undefined
+}
+
+export function debounce(func, delay) {
+    var timeoutId
+
+    return (...args) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => func(...args), delay)
+    }
 }
